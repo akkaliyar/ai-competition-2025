@@ -2414,7 +2414,7 @@ export class FileProcessingService {
           structuredData = await this.createPdfStructuredTableData(parsedContent, extractedText);
           break;
         case FileType.EXCEL:
-          structuredData = await this.createExcelStructuredTableData(parsedContent);
+          structuredData = await this.createExcelStructuredTableData(parsedContent, extractedText);
           break;
         default:
           structuredData = await this.createGenericStructuredTableData(parsedContent, extractedText);
@@ -2435,6 +2435,12 @@ export class FileProcessingService {
   }
 
   private async createImageStructuredTableData(parsedContent: any, extractedText: string): Promise<any> {
+    // Check if this is a payslip document
+    if (this.isPayslipDocument(extractedText)) {
+      console.log('💰 Detected payslip document in image, using specialized parser...');
+      return await this.createPayslipStructuredData(extractedText, 'image');
+    }
+
     const lines = extractedText.split('\n').filter(line => line.trim().length > 0);
     const tableAnalysis = this.analyzeOcrForTables(lines);
     
@@ -2499,7 +2505,7 @@ export class FileProcessingService {
     // Check if this is a payslip document
     if (this.isPayslipDocument(extractedText)) {
       console.log('💰 Detected payslip document, using specialized parser...');
-      return await this.createPayslipStructuredData(extractedText);
+      return await this.createPayslipStructuredData(extractedText, 'pdf');
     }
     
     // Regular table analysis for other PDFs
@@ -2576,8 +2582,8 @@ export class FileProcessingService {
     return keywordMatches.length >= 5; // At least 5 keywords to be considered a payslip
   }
 
-  private async createPayslipStructuredData(text: string): Promise<any> {
-    console.log('💰 Creating structured payslip data...');
+  private async createPayslipStructuredData(text: string, originalFileType?: string): Promise<any> {
+    console.log(`💰 Creating structured payslip data from ${originalFileType || 'unknown'} file...`);
     
     const lines = text.split('\n').filter(line => line.trim().length > 0);
     
@@ -2591,7 +2597,7 @@ export class FileProcessingService {
     const summaryInfo = this.extractPayslipSummary(lines);
     
     return {
-      fileType: 'pdf',
+      fileType: originalFileType || 'generic',
       processedAt: new Date().toISOString(),
       hasStructuredData: true,
       tableCount: 2,
@@ -2675,7 +2681,7 @@ export class FileProcessingService {
     return details;
   }
 
-  private async createExcelStructuredTableData(parsedContent: any): Promise<any> {
+  private async createExcelStructuredTableData(parsedContent: any, extractedText?: string): Promise<any> {
     if (!parsedContent.sheets) {
       return {
         fileType: 'excel',
@@ -2686,6 +2692,12 @@ export class FileProcessingService {
         totalColumns: 0,
         error: 'No sheet data found'
       };
+    }
+
+    // Check if this is a payslip document (if we have extracted text)
+    if (extractedText && this.isPayslipDocument(extractedText)) {
+      console.log('💰 Detected payslip document in Excel, using specialized parser...');
+      return await this.createPayslipStructuredData(extractedText, 'excel');
     }
 
     const tables: any[] = [];
@@ -2730,6 +2742,12 @@ export class FileProcessingService {
   }
 
   private async createGenericStructuredTableData(parsedContent: any, extractedText: string): Promise<any> {
+    // Check if this is a payslip document
+    if (extractedText && this.isPayslipDocument(extractedText)) {
+      console.log('💰 Detected payslip document in generic file, using specialized parser...');
+      return await this.createPayslipStructuredData(extractedText, 'generic');
+    }
+
     const lines = extractedText ? extractedText.split('\n').filter(line => line.trim().length > 0) : [];
     
     return {
@@ -2785,5 +2803,74 @@ export class FileProcessingService {
     ];
     
     return sectionPatterns.some(pattern => pattern.test(line));
+  }
+
+  private extractPayslipEarningsTable(lines: string[]): any[] {
+    const earningsTable: any[] = [];
+    const earningsPatterns = [
+      { pattern: /basic\s*salary\s*:\s*([\d,]+\.?\d*)/i, field: 'Basic Salary' },
+      { pattern: /house\s*rent\s*allowance\s*:\s*([\d,]+\.?\d*)/i, field: 'House Rent Allowance' },
+      { pattern: /conveyance\s*allowance\s*:\s*([\d,]+\.?\d*)/i, field: 'Conveyance Allowance' },
+      { pattern: /medical\s*allowance\s*:\s*([\d,]+\.?\d*)/i, field: 'Medical Allowance' },
+      { pattern: /special\s*allowance\s*:\s*([\d,]+\.?\d*)/i, field: 'Special Allowance' },
+      { pattern: /performance\s*bonus\s*:\s*([\d,]+\.?\d*)/i, field: 'Performance Bonus' },
+      { pattern: /overtime\s*:\s*([\d,]+\.?\d*)/i, field: 'Overtime' },
+      { pattern: /incentive\s*:\s*([\d,]+\.?\d*)/i, field: 'Incentive' },
+      { pattern: /professional\s*tax\s*:\s*([\d,]+\.?\d*)/i, field: 'Professional Tax' },
+      { pattern: /income\s*tax\s*:\s*([\d,]+\.?\d*)/i, field: 'Income Tax' },
+      { pattern: /provident\s*fund\s*:\s*([\d,]+\.?\d*)/i, field: 'Provident Fund' },
+      { pattern: /insurance\s*:\s*([\d,]+\.?\d*)/i, field: 'Insurance' },
+      { pattern: /loan\s*repayment\s*:\s*([\d,]+\.?\d*)/i, field: 'Loan Repayment' }
+    ];
+
+    for (const line of lines) {
+      for (const pattern of earningsPatterns) {
+        const match = line.match(pattern.pattern);
+        if (match) {
+          const amount = parseFloat(match[1].replace(/,/g, ''));
+          earningsTable.push({
+            'Head': pattern.field,
+            'Current Month Earning': amount > 0 ? amount : 0,
+            'Current Month Deduction': amount < 0 ? Math.abs(amount) : 0,
+            'April To Date Earning': amount > 0 ? amount : 0,
+            'April To Date Deduction': amount < 0 ? Math.abs(amount) : 0
+          });
+          break;
+        }
+      }
+    }
+
+    return earningsTable;
+  }
+
+  private extractPayslipSummary(lines: string[]): any {
+    let grossPay = 0;
+    let totalDeductions = 0;
+    let netPay = 0;
+
+    // Look for summary patterns
+    const summaryPatterns = [
+      { pattern: /gross\s*pay\s*:\s*([\d,]+\.?\d*)/i, field: 'Gross Pay' },
+      { pattern: /total\s*deductions\s*:\s*([\d,]+\.?\d*)/i, field: 'Total Deductions' },
+      { pattern: /net\s*pay\s*:\s*([\d,]+\.?\d*)/i, field: 'Net Pay' },
+      { pattern: /take\s*home\s*:\s*([\d,]+\.?\d*)/i, field: 'Take Home' }
+    ];
+
+    for (const line of lines) {
+      for (const pattern of summaryPatterns) {
+        const match = line.match(pattern.pattern);
+        if (match) {
+          const amount = parseFloat(match[1].replace(/,/g, ''));
+          if (pattern.field === 'Gross Pay') grossPay = amount;
+          if (pattern.field === 'Total Deductions') totalDeductions = amount;
+          if (pattern.field === 'Net Pay' || pattern.field === 'Take Home') netPay = amount;
+        }
+      }
+    }
+
+    return {
+      'Field': 'Summary',
+      'Value': `Gross: ${grossPay}, Deductions: ${totalDeductions}, Net: ${netPay}`
+    };
   }
 }
