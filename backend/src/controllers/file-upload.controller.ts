@@ -61,17 +61,13 @@ export class FileUploadController {
     @Req() request: Request,
     @Headers('user-agent') userAgent?: string,
   ) {
-    console.log('📤 Upload request received');
+    // Upload request received
     
     if (!file) {
-      console.log('❌ No file in request');
       throw new BadRequestException('No file uploaded');
     }
 
-    console.log(`📁 File received: ${file.originalname}`);
-    console.log(`   Size: ${file.size} bytes`);
-    console.log(`   Type: ${file.mimetype}`);
-    console.log(`   Has buffer: ${!!file.buffer}`);
+    // File received
 
     try {
       // Extract request information
@@ -81,9 +77,9 @@ export class FileUploadController {
         sessionId: `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       };
 
-      console.log('🔄 Starting file processing...');
+      // Starting file processing
       const result = await this.fileProcessingService.processFile(file, requestInfo);
-      console.log(`✅ File processing completed for: ${result.originalName}`);
+      // File processing completed
       
       return {
         success: true,
@@ -110,8 +106,6 @@ export class FileUploadController {
         }
       };
     } catch (error) {
-      console.error('❌ File processing error:', error.message);
-      console.error('Stack trace:', error.stack);
       throw new BadRequestException(`File processing failed: ${error.message}`);
     }
   }
@@ -174,7 +168,7 @@ export class FileUploadController {
     @Req() request: Request,
     @Headers('user-agent') userAgent?: string,
   ) {
-    console.log('🧾 Invoice extraction request received');
+    // Invoice extraction request received
     
     if (!file) {
       throw new BadRequestException('No invoice image uploaded');
@@ -186,9 +180,7 @@ export class FileUploadController {
       throw new BadRequestException('Invalid file type. Only image files are supported for invoice extraction.');
     }
 
-    console.log(`🧾 Processing invoice: ${file.originalname}`);
-    console.log(`   Size: ${(file.size / 1024).toFixed(2)} KB`);
-    console.log(`   Type: ${file.mimetype}`);
+    // Processing invoice
 
     try {
       // Extract request information
@@ -198,14 +190,12 @@ export class FileUploadController {
         sessionId: `invoice_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       };
 
-      console.log('🎯 Starting advanced invoice OCR processing...');
+      // Starting advanced invoice OCR processing
       
       // Use specialized invoice extraction method
       const extractionResult = await this.fileProcessingService.extractInvoiceData(file, requestInfo);
       
-      console.log(`✅ Invoice extraction completed: ${extractionResult.filename}`);
-      console.log(`📊 Tables detected: ${extractionResult.tableCount}`);
-      console.log(`🎯 OCR Confidence: ${extractionResult.averageConfidence?.toFixed(1)}%`);
+      // Invoice extraction completed
       
       // Parse the structured data
       const parsedContent = extractionResult.parsedContent ? JSON.parse(extractionResult.parsedContent) : null;
@@ -245,8 +235,6 @@ export class FileUploadController {
       };
 
     } catch (error) {
-      console.error('❌ Invoice extraction error:', error.message);
-      console.error('Stack trace:', error.stack);
       throw new BadRequestException(`Invoice extraction failed: ${error.message}`);
     }
   }
@@ -263,8 +251,7 @@ export class FileUploadController {
     @Req() request: Request,
     @Headers('user-agent') userAgent?: string,
   ) {
-    console.log('🔍 Google Vision API extraction requested');
-    console.log(`📁 File: ${file.originalname} (${file.size} bytes)`);
+    // Google Vision API extraction requested
 
     // Validate file
     if (!file || !file.buffer) {
@@ -286,16 +273,14 @@ export class FileUploadController {
         sessionId: `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
       };
 
-      console.log('🔍 Processing with Google Vision API...');
+      // Processing with Google Vision API
       
       // Process with Google Vision API
       const visionResult = await this.googleVisionService.extractInvoiceDataWithVision(file.buffer);
       
       const totalProcessingTime = Date.now() - startTime;
       
-      console.log(`✅ Google Vision processing completed in ${totalProcessingTime}ms`);
-      console.log(`📊 Extracted items: ${visionResult.data.length}`);
-      console.log(`🎯 Confidence: ${visionResult.confidence?.toFixed(1)}%`);
+      // Google Vision processing completed
 
       // Return structured response matching the specification
       return {
@@ -331,8 +316,6 @@ export class FileUploadController {
       };
 
     } catch (error) {
-      console.error('❌ Google Vision extraction error:', error.message);
-      console.error('Stack trace:', error.stack);
       throw new BadRequestException(`Google Vision extraction failed: ${error.message}`);
     }
   }
@@ -342,7 +325,7 @@ export class FileUploadController {
    */
   @Get('vision-status')
   async getVisionStatus() {
-    console.log('📊 Vision API status requested');
+    // Vision API status requested
     
     const capabilities = this.googleVisionService.getVisionCapabilities();
     

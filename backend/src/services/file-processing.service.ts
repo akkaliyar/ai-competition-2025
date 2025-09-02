@@ -35,10 +35,10 @@ export class FileProcessingService {
 
   async processFile(file: Express.Multer.File, requestInfo?: { userAgent?: string; ip?: string; sessionId?: string }): Promise<ParsedFile> {
     const startTime = Date.now();
-    console.log(`\n=== Processing File ===`);
-    console.log(`Name: ${file.originalname}`);
-    console.log(`Size: ${(file.size / 1024).toFixed(2)} KB`);
-    console.log(`Type: ${file.mimetype}`);
+    // Processing File
+    // Name: ${file.originalname}
+    // Size: ${(file.size / 1024).toFixed(2)} KB
+    // Type: ${file.mimetype}
     
     // Validate file buffer exists
     if (!file.buffer || file.buffer.length === 0) {
@@ -46,7 +46,7 @@ export class FileProcessingService {
     }
     
     const fileType = this.determineFileTypeEnum(file);
-    console.log(`Detected file type: ${fileType}`);
+    // Detected file type: ${fileType}
 
     // Generate file hash for deduplication
     const fileHash = this.generateFileHash(file.buffer);
@@ -82,7 +82,7 @@ export class FileProcessingService {
     try {
       // Save initial record
       const savedFile = await this.parsedFileRepository.save(parsedFile);
-      console.log(`Initial file record saved with ID: ${savedFile.id}`);
+      // Initial file record saved with ID: ${savedFile.id}
 
       let extractedText = '';
       let parsedContent: any = {};
@@ -92,11 +92,11 @@ export class FileProcessingService {
       // Process based on file type
       switch (fileType) {
         case FileType.IMAGE:
-          console.log('Processing as image with multi-engine OCR...');
+          // Processing as image with multi-engine OCR
           
           // Select optimal OCR engine based on file characteristics
           const ocrEngine = this.selectOptimalOcrEngine(file);
-          console.log(`🎯 Selected OCR engine: ${ocrEngine}`);
+          // Selected OCR engine: ${ocrEngine}
           
           const imageProcessingResult = await this.processImageWithMultipleEngines(file, savedFile.id, ocrEngine);
           extractedText = imageProcessingResult.text;
@@ -105,7 +105,7 @@ export class FileProcessingService {
           break;
 
         case FileType.PDF:
-          console.log('Processing as PDF...');
+          // Processing as PDF
           const pdfProcessingResult = await this.processPdfEnhanced(file, savedFile.id);
           extractedText = pdfProcessingResult.text;
           parsedContent = pdfProcessingResult.parsedContent;
@@ -113,7 +113,7 @@ export class FileProcessingService {
           break;
 
         case FileType.EXCEL:
-          console.log('Processing as Excel...');
+          // Processing as Excel
           const excelProcessingResult = await this.processExcelEnhanced(file, savedFile.id);
           parsedContent = excelProcessingResult.parsedContent;
           tableExtractions = excelProcessingResult.tables || [];
@@ -158,17 +158,17 @@ export class FileProcessingService {
       }
 
       const finalFile = await this.parsedFileRepository.save(savedFile);
-      console.log(`File processing completed in ${endTime - startTime}ms`);
-      console.log(`=== Processing Complete ===\n`);
+      // File processing completed in ${endTime - startTime}ms
+      // === Processing Complete ===
       
       return finalFile;
 
     } catch (error) {
-      console.error(`\n=== Processing Error ===`);
-      console.error(`File: ${file.originalname}`);
-      console.error(`Error: ${error.message}`);
-      console.error(`Stack: ${error.stack}`);
-      console.error(`======================\n`);
+      // === Processing Error ===
+      // File: ${file.originalname}
+      // Error: ${error.message}
+      // Stack: ${error.stack}
+      // ======================
 
       // Update file record with error information
       try {
@@ -191,7 +191,7 @@ export class FileProcessingService {
 
         return await this.parsedFileRepository.save(parsedFile);
       } catch (dbError) {
-        console.error('Database save also failed:', dbError.message);
+        // Database save also failed: ${dbError.message}
         throw new Error(`File processing failed: ${error.message}. Database error: ${dbError.message}`);
       }
     }

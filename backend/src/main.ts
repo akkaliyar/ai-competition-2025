@@ -20,7 +20,7 @@ async function bootstrap() {
 
   // Start server on port 3001
   await app.listen(3001);
-  console.log('Backend server is running on http://localhost:3001');
+  // Server started successfully
 }
 
 bootstrap();
