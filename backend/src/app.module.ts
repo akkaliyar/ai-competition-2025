@@ -24,7 +24,7 @@ import { TableExtraction } from './entities/table-extraction.entity';
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_NAME || 'ai_crm',
       entities: [ParsedFile, OcrResult, FileMetadata, TableExtraction],
-      synchronize: true, // Temporarily enabled to create new structuredTableData column
+      synchronize: false, // Disabled to prevent row size errors
       logging: process.env.NODE_ENV === 'development',
       charset: 'utf8mb4', // Support for emojis and special characters
       timezone: '+00:00', // Store dates in UTC

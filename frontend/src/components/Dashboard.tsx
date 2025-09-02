@@ -27,6 +27,19 @@ const Dashboard: React.FC<DashboardProps> = ({ files, onRefresh }) => {
   }, [files, selectedTimeRange]);
 
   const calculateStats = () => {
+    // Safety check for files array
+    if (!files || files.length === 0) {
+      setStats({
+        totalFiles: 0,
+        imageFiles: 0,
+        pdfFiles: 0,
+        excelFiles: 0,
+        totalSize: 0,
+        recentActivity: []
+      });
+      return;
+    }
+
     const now = new Date();
     const timeRanges = {
       day: 1,
@@ -65,14 +78,14 @@ const Dashboard: React.FC<DashboardProps> = ({ files, onRefresh }) => {
     if (!stats) return [];
     
     return [
-      { type: 'Images', count: stats.imageFiles, color: '#e74c3c', emoji: '🖼️' },
-      { type: 'PDFs', count: stats.pdfFiles, color: '#e67e22', emoji: '📕' },
-      { type: 'Excel', count: stats.excelFiles, color: '#27ae60', emoji: '📊' }
+      { type: 'Images', count: stats.imageFiles || 0, color: '#e74c3c', emoji: '🖼️' },
+      { type: 'PDFs', count: stats.pdfFiles || 0, color: '#e67e22', emoji: '📕' },
+      { type: 'Excel', count: stats.excelFiles || 0, color: '#27ae60', emoji: '📊' }
     ].filter(item => item.count > 0);
   };
 
   const getProcessingSuccessRate = (): number => {
-    if (files.length === 0) return 0;
+    if (!files || files.length === 0) return 0;
     // Assume successful if file has parsed content
     const successfulFiles = files.filter(f => f.parsedContent && Object.keys(f.parsedContent).length > 0);
     return Math.round((successfulFiles.length / files.length) * 100);
@@ -236,6 +249,11 @@ const Dashboard: React.FC<DashboardProps> = ({ files, onRefresh }) => {
   );
 
   function getCurrentPeakHour(): string {
+    // Check if files array is empty
+    if (!files || files.length === 0) {
+      return 'No data';
+    }
+    
     const hours = files.map(file => new Date(file.createdAt).getHours());
     const hourCounts: { [key: number]: number } = {};
     
@@ -243,8 +261,15 @@ const Dashboard: React.FC<DashboardProps> = ({ files, onRefresh }) => {
       hourCounts[hour] = (hourCounts[hour] || 0) + 1;
     });
     
-    const peakHour = Object.keys(hourCounts).reduce((a, b) => 
-      hourCounts[parseInt(a)] > hourCounts[parseInt(b)] ? a : b
+    // Check if hourCounts is empty
+    const hourKeys = Object.keys(hourCounts);
+    if (hourKeys.length === 0) {
+      return 'No data';
+    }
+    
+    // Use reduce with initial value to prevent errors
+    const peakHour = hourKeys.reduce((a, b) => 
+      hourCounts[parseInt(a)] > hourCounts[parseInt(b)] ? a : b, hourKeys[0]
     );
     
     const hour = parseInt(peakHour);
