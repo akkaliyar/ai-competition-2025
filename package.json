@@ -1,6 +1,15 @@
 {
-  "dependencies": {
+  "name": "fullstack-app",
+  "private": true,
+  "scripts": {
+    "start": "concurrently \"npm run start --prefix backend\" \"npm start --prefix frontend\"",
+    "start:frontend": "npm start --prefix frontend",
+    "start:backend": "npm run start:dev --prefix backend",
+    "build": "npm run build --prefix backend && npm run build --prefix frontend"
+  },
+  "devDependencies": {
     "axios": "^1.11.0",
+    "concurrently": "^8.2.2",
     "form-data": "^4.0.4"
   }
 }
