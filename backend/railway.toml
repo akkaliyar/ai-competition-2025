@@ -3,11 +3,14 @@
 
 [build]
 builder = "dockerfile"
-dockerfilePath = "Dockerfile.railway"
+dockerfilePath = "Dockerfile.railway.v2"
+
+# Override build command to force Docker
+buildCommand = "docker build -f Dockerfile.railway.v2 --no-cache ."
 
 # Force Docker build and completely ignore Nixpacks
 [build.docker]
-dockerfile = "Dockerfile.railway"
+dockerfile = "Dockerfile.railway.v2"
 context = "."
 ignore = [".nixpacks", "../package.json", "../package-lock.json"]
 
