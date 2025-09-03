@@ -1,5 +1,14 @@
-# Use Node.js 20 Alpine as base image
+# Use Node.js 20 Alpine as base image - Railway Optimized
 FROM node:20-alpine
+
+# Build arguments for cache invalidation
+ARG BUILD_DATE=2025-09-03
+ARG VERSION=1.0.0
+
+# Add labels for better cache management
+LABEL build-date=$BUILD_DATE
+LABEL version=$VERSION
+LABEL description="AI Competition Frontend - React App"
 
 # Set working directory
 WORKDIR /app
