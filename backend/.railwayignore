@@ -1,29 +1,24 @@
-# ULTRA AGGRESSIVE - Railway ONLY sees backend files
-# This completely blocks all root files
+# ULTRA AGGRESSIVE - Ignore everything except backend
+# This ensures Railway ONLY sees backend files
 
-# Block ALL parent directory files
-../*
-!../.git
-
-# Block ALL root files
+# Ignore ALL root files
 ../package.json
 ../package-lock.json
 ../node_modules
 ../frontend
+../.git
 ../.nixpacks
 ../.railwayignore
 ../.dockerignore
 ../Dockerfile*
 
-# Block ALL root scripts and docs
+# Ignore root scripts and docs
 ../deploy.sh
 ../cleanup-project.sh
 ../remove-unused-files.sh
 ../*.md
-../*.sh
-../*.js
 
-# Block any potential root build files
+# Ignore any potential root build files
 ../dist
 ../build
 ../.env
@@ -38,6 +33,3 @@
 !Dockerfile.railway.v2
 !railway.toml
 !.railwayignore
-
-# Block everything else
-*
