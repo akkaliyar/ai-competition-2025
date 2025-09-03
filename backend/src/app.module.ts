@@ -22,6 +22,8 @@ import { TableExtraction } from './entities/table-extraction.entity';
         console.log('🔧 Configuring database connection...');
         console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL);
         console.log('DB_HOST:', process.env.DB_HOST);
+        console.log('RAILWAY_PRIVATE_DOMAIN:', process.env.RAILWAY_PRIVATE_DOMAIN);
+        console.log('MYSQL_ROOT_PASSWORD exists:', !!process.env.MYSQL_ROOT_PASSWORD);
         
         // If DATABASE_URL is provided (Railway style), use it
         if (process.env.DATABASE_URL) {
