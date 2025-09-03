@@ -21,7 +21,7 @@ import { TableExtraction } from './entities/table-extraction.entity';
       host: process.env.DB_HOST || 'localhost',
       port: parseInt(process.env.DB_PORT) || 3306,
       username: process.env.DB_USERNAME || 'root',
-      password: process.env.DB_PASSWORD || '',
+      password: process.env.DB_PASSWORD || 'lqgytXkbWhSZOJPrFVCxLOywLsZcCrkL',
       database: process.env.DB_NAME || 'ai_crm',
       entities: [ParsedFile, OcrResult, FileMetadata, TableExtraction],
       synchronize: false, // Disabled to prevent row size errors
