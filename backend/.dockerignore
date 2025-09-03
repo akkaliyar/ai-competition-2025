@@ -24,3 +24,9 @@ tests
 *~
 .DS_Store
 Thumbs.db
+
+# Exclude old Docker files to prevent cache conflicts
+Dockerfile
+Dockerfile.backup
+Dockerfile.disabled
+docker-compose.yml
