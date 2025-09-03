@@ -1,6 +1,7 @@
 [build]
 builder = "dockerfile"
-dockerfilePath = "./Dockerfile.railway"
+dockerfilePath = "Dockerfile.railway"
+buildCommand = "docker build -f Dockerfile.railway --no-cache ."
 
 [deploy]
 startCommand = "npm run start:prod"

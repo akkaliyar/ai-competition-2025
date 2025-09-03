@@ -1,6 +1,8 @@
-# Keep Docker files for Railway deployment
-# Dockerfile
-# .dockerignore
+# Exclude ALL old Docker files to prevent cache conflicts
+Dockerfile*
+!Dockerfile.railway
+.dockerignore
+docker-compose.yml
 
 # Node.js files
 node_modules/
