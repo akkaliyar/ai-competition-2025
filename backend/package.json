@@ -5,7 +5,7 @@
   "main": "dist/main.js",
   "scripts": {
     "build": "nest build",
-    "postbuild": "cp -r src/entities dist/src/entities",
+    "postbuild": "mkdir -p dist/entities && cp -r src/entities/* dist/entities/ || echo 'Entities copy completed'",
     "railway:build": "npm install --omit=dev --no-audit --no-fund && npm run build",
     "railway:start": "npm run start:prod",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",

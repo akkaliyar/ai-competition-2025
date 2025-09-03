@@ -1,6 +1,6 @@
 # Full-Stack Application Dockerfile
 # Build Date: 2025-09-03
-# Version: 1.0.0
+# Version: 1.1.0 - FIXED BUILD PROCESS
 
 # Use Node.js 20 Alpine as base image
 FROM node:20-alpine AS builder
@@ -24,7 +24,12 @@ RUN npm run install:all
 # Copy source code
 COPY . .
 
-# Build both backend and frontend
+# Build backend first (in its own directory)
+WORKDIR /app/backend
+RUN npm run build
+
+# Build frontend (in its own directory)
+WORKDIR /app/frontend
 RUN npm run build
 
 # Production stage
