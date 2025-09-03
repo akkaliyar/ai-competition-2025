@@ -18,19 +18,12 @@ async function bootstrap() {
   // Global validation pipe
   app.useGlobalPipes(new ValidationPipe());
 
-  // Health check endpoint using NestJS approach
-  app.use('/health', (req, res) => {
-    res.status(200).json({ 
-      status: 'ok', 
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime()
-    });
-  });
+  // Health endpoints are handled by HealthController
 
-  // Start server on port 3001
-  //await app.listen(3001);
-  await app.listen(process.env.PORT ? Number(process.env.PORT) : 3001, '0.0.0.0');
-  // Server started successfully
+  // Start server on configured port
+  const port = process.env.PORT ? Number(process.env.PORT) : 3001;
+  await app.listen(port, '0.0.0.0');
+  console.log(`🚀 AI CRM Backend running on port ${port}`);
 }
 
 bootstrap();
