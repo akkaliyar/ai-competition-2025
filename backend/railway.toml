@@ -33,3 +33,7 @@ UPLOAD_PATH = "./uploads"
 # OCR Configuration
 TESSERACT_LANG = "eng"
 TESSERACT_CONFIG = "--oem 3 --psm 6"
+
+# Ensure Railway uses this directory
+[build.context]
+path = "."
