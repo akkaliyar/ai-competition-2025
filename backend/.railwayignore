@@ -1,7 +1,6 @@
-# Docker files (Railway will use nixpacks instead)
-Dockerfile*
-.dockerignore
-docker-compose.yml
+# Keep Docker files for Railway deployment
+# Dockerfile
+# .dockerignore
 
 # Node.js files
 node_modules/

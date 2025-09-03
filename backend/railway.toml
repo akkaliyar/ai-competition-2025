@@ -1,6 +1,5 @@
 [build]
-builder = "nixpacks"
-buildCommand = "npm run railway:build"
+builder = "dockerfile"
 
 [deploy]
 startCommand = "npm run start:prod"

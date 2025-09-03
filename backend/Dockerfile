@@ -1,5 +1,14 @@
-# Use Node.js 20 Alpine as base image
+# Use Node.js 20 Alpine as base image - V2.0
 FROM node:20-alpine
+
+# Build argument to force cache invalidation
+ARG BUILD_DATE=2025-09-03
+ARG VERSION=2.0.0
+
+# Add labels for better cache management
+LABEL build-date=$BUILD_DATE
+LABEL version=$VERSION
+LABEL description="AI Competition Backend with OCR Support"
 
 # Set working directory
 WORKDIR /app
@@ -15,7 +24,7 @@ RUN apk add --no-cache \
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install --omit=dev --no-audit --no-fund
+RUN npm install --omit=dev --no-audit --no-fund --prefer-offline=false
 
 # Copy source code
 COPY . .
