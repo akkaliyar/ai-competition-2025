@@ -83,8 +83,6 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ data, fileName }) => {
   };
 
   const exportInvoiceTableToPDF = (table: any, headers: string[], tableIndex: number) => {
-    console.log('📄 Exporting invoice table to PDF...');
-
     try {
       const doc = new jsPDF();
       
@@ -119,7 +117,6 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ data, fileName }) => {
 
       if (autoTableAvailable && doc.autoTable) {
         // Enhanced PDF with AutoTable
-        console.log('📊 Using enhanced PDF formatting with AutoTable');
 
         // Prepare table data
         const tableHeaders = headers.map(formatColumnHeader);
@@ -164,7 +161,6 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ data, fileName }) => {
 
       } else {
         // Basic PDF without AutoTable
-        console.log('📊 Using basic PDF formatting (AutoTable not available)');
         
         // Add headers
         doc.setFontSize(9);
@@ -211,8 +207,6 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ data, fileName }) => {
       // Save the PDF
       const timestamp = new Date().getTime();
       doc.save(`invoice-table-${tableIndex + 1}-${timestamp}.pdf`);
-      
-      console.log('✅ PDF export completed successfully');
 
     } catch (error) {
       console.error('❌ PDF export error:', error);
@@ -247,8 +241,6 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ data, fileName }) => {
         link.click();
         document.body.removeChild(link);
       }
-      
-      console.log('✅ Excel export completed successfully');
       
     } catch (error) {
       console.error('❌ Excel export error:', error);

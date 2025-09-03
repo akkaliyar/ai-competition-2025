@@ -206,20 +206,13 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ files, onRefresh }) => 
           <button
             className={`toggle-btn ${showStructuredView ? 'active' : ''}`}
             onClick={() => {
-              console.log('Structured Table View button clicked');
-              console.log('selectedFile:', selectedFile);
-              console.log('structuredTableData:', selectedFile.structuredTableData);
-              console.log('parsedContent:', selectedFile.parsedContent);
-              
               if (selectedFile.structuredTableData) {
                 setShowStructuredView(true);
               } else if (selectedFile.parsedContent) {
                 // If no structured data, try to use parsedContent as fallback
-                console.log('Using parsedContent as fallback for structured view');
                 setShowStructuredView(true);
               } else {
                 // If no structured data, try to fetch it or show a message
-                console.log('No structured table data available');
                 alert('Structured table data is not available for this file. The file may need to be reprocessed.');
               }
             }}

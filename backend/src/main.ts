@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { Request, Response } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -19,8 +18,8 @@ async function bootstrap() {
   // Global validation pipe
   app.useGlobalPipes(new ValidationPipe());
 
-  // Health check endpoint
-  app.get('/health', (req: Request, res: Response) => {
+  // Health check endpoint using NestJS approach
+  app.use('/health', (req, res) => {
     res.status(200).json({ 
       status: 'ok', 
       timestamp: new Date().toISOString(),
@@ -29,7 +28,8 @@ async function bootstrap() {
   });
 
   // Start server on port 3001
-  await app.listen(3001);
+  //await app.listen(3001);
+  await app.listen(process.env.PORT ? Number(process.env.PORT) : 3001, '0.0.0.0');
   // Server started successfully
 }
 

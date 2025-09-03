@@ -153,8 +153,6 @@ const MaterialInvoiceTable: React.FC<MaterialInvoiceTableProps> = ({ data, fileN
 
   // Export PDF function matching specification
   const exportPDF = () => {
-    console.log('📄 Exporting invoice table to PDF (Material-UI format)...');
-    
     try {
       const doc = new jsPDF();
       
@@ -241,8 +239,6 @@ const MaterialInvoiceTable: React.FC<MaterialInvoiceTableProps> = ({ data, fileN
       // Save the PDF
       const timestamp = new Date().getTime();
       doc.save(`invoice-${timestamp}.pdf`);
-      
-      console.log('✅ PDF export completed successfully');
 
     } catch (error) {
       console.error('❌ PDF export error:', error);
