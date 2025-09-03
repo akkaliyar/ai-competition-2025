@@ -1,26 +1,24 @@
-# Ignore root package.json to prevent Railway from using it
+# ULTRA AGGRESSIVE - Hide ALL root files from Railway
+# This forces Railway to ONLY see backend files
+
+# Hide ALL root files completely
 package.json
 package-lock.json
-
-# Ignore root build scripts
-cleanup-project.sh
-remove-unused-files.sh
-verify-railway-setup.sh
-deploy-railway.sh
-deploy.sh
-
-# Ignore documentation files
-*.md
-
-# Ignore root node_modules
 node_modules/
+.env*
 
-# Ignore root Docker files (we only want backend/Dockerfile.railway)
-Dockerfile*
-.dockerignore
+# Hide ALL root scripts and docs
+*.sh
+*.md
+*.js
 
-# Only allow backend directory - frontend will be deployed separately
+# Hide ALL root directories except backend
+frontend/
+.git/
+.nvmrc
+
+# Only allow backend directory
 !backend/
 
-# Explicitly ignore frontend to prevent conflicts
-frontend/
+# Explicitly hide everything else
+*
