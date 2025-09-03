@@ -1,10 +1,10 @@
 {
   "name": "ai-crm-monorepo",
   "version": "1.0.0",
-  "description": "AI CRM Application",
+  "description": "AI CRM Application - Deploys backend or frontend based on SERVICE_TYPE env var",
   "scripts": {
-    "build": "npm run build:backend",
-    "start": "npm run start:backend",
+    "build": "BUILD_PHASE=build node deploy-service.js",
+    "start": "BUILD_PHASE=start node deploy-service.js",
     "build:backend": "cd backend && npm ci && npm run build",
     "start:backend": "cd backend && npm start",
     "build:frontend": "cd frontend && npm ci && npm run build", 

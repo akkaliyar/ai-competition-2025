@@ -3,14 +3,18 @@ builder = "nixpacks"
 
 [deploy]
 startCommand = "npm start"
-healthcheckPath = "/health"
+healthcheckPath = "/healthz"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
 
 [env]
 NODE_ENV = "production"
+SERVICE_TYPE = "backend"
 PORT = "3001"
 
-# This configuration deploys the BACKEND by default
-# For frontend deployment, create a separate Railway service with root directory "frontend"
+# To deploy frontend as separate service:
+# 1. Create new Railway service from same repo
+# 2. Set SERVICE_TYPE=frontend
+# 3. Set PORT=3000
+# 4. Set healthcheckPath="/"

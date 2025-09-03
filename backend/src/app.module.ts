@@ -29,6 +29,11 @@ import { TableExtraction } from './entities/table-extraction.entity';
             logging: process.env.NODE_ENV === 'development',
             charset: 'utf8mb4',
             timezone: '+00:00',
+            connectTimeout: 10000,
+            acquireTimeout: 10000,
+            timeout: 10000,
+            retryAttempts: 2,
+            retryDelay: 3000,
           };
         }
         
@@ -45,6 +50,11 @@ import { TableExtraction } from './entities/table-extraction.entity';
           logging: process.env.NODE_ENV === 'development',
           charset: 'utf8mb4',
           timezone: '+00:00',
+          connectTimeout: 10000,
+          acquireTimeout: 10000,
+          timeout: 10000,
+          retryAttempts: 2,
+          retryDelay: 3000,
         };
       },
     }),
