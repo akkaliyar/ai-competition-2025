@@ -1,7 +1,22 @@
+# Railway Configuration for Backend Only
+# This ensures Railway builds only the backend, not the full-stack app
+
 [build]
 builder = "dockerfile"
 dockerfilePath = "Dockerfile.railway"
-buildCommand = "docker build -f Dockerfile.railway --no-cache ."
+
+# Explicitly set the build context to backend only
+[build.context]
+path = "."
+
+# Exclude any parent directories or root files
+exclude = [
+    "../package.json",
+    "../package-lock.json", 
+    "../node_modules",
+    "../frontend",
+    "../.git"
+]
 
 [deploy]
 startCommand = "npm run start:prod"
@@ -34,6 +49,3 @@ UPLOAD_PATH = "./uploads"
 TESSERACT_LANG = "eng"
 TESSERACT_CONFIG = "--oem 3 --psm 6"
 
-# Ensure Railway uses this directory
-[build.context]
-path = "."
