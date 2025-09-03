@@ -1,0 +1,18 @@
+[build]
+builder = "nixpacks"
+buildCommand = "npm install --omit=dev --no-audit --no-fund && npm run build"
+
+[deploy]
+startCommand = "npm run start:prod"
+healthcheckPath = "/health"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
+
+[env]
+NODE_ENV = "production"
+PORT = "3001"
+NPM_CONFIG_PREFER_OFFLINE = "false"
+NPM_CONFIG_AUDIT = "false"
+NPM_CONFIG_FUND = "false"
+NPM_CONFIG_CI = "false"
