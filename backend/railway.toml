@@ -1,5 +1,5 @@
-# Railway Configuration for Backend ONLY - ULTRA AGGRESSIVE
-# This forces Railway to ONLY deploy backend, completely ignoring frontend
+# Railway Configuration for Backend ONLY - FORCE DOCKER, DISABLE NIXPACKS
+# This forces Railway to ONLY use Docker, completely ignoring Nixpacks
 
 [build]
 builder = "dockerfile"
@@ -52,7 +52,7 @@ monorepo = false
 
 # Force single service deployment
 [deploy]
-startCommand = "npm run start:prod"
+startCommand = "npm start"
 healthcheckPath = "/health"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"
@@ -82,4 +82,12 @@ UPLOAD_PATH = "./uploads"
 # OCR Configuration
 TESSERACT_LANG = "eng"
 TESSERACT_CONFIG = "--oem 3 --psm 6"
+
+# Force Docker and disable Nixpacks
+[build.docker.ignore]
+files = [".nixpacks", "../.nixpacks", "nixpacks.toml", "../nixpacks.toml"]
+
+# Explicitly disable Nixpacks
+[nixpacks]
+disabled = true
 

@@ -1,1 +1,19 @@
+# Nixpacks disabled - Force Docker deployment
+# This file explicitly tells Railway NOT to use Nixpacks
 
+[phases.setup]
+nixPkgs = []
+
+[phases.install]
+cmds = []
+
+[phases.build]
+cmds = []
+
+[start]
+cmd = ""
+
+# Force Railway to use Docker instead
+[build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile.railway.v2"
