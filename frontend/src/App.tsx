@@ -4,8 +4,7 @@ import FileUpload from './components/FileUpload';
 import ResultsDisplay from './components/ResultsDisplay';
 import Dashboard from './components/Dashboard';
 import { ProcessedFile } from './types/ProcessedFile';
-
-const API_BASE_URL = 'http://localhost:3001/api';
+import { API_BASE_URL } from './config/api';
 
 function App() {
   const [processedFiles, setProcessedFiles] = useState<ProcessedFile[]>([]);
