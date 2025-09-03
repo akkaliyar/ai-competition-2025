@@ -1,14 +1,15 @@
-# Railway Configuration for Backend Only
-# This ensures Railway builds only the backend, not the full-stack app
+# Railway Configuration for Backend Only - AGGRESSIVE DOCKER FORCE
+# This ensures Railway builds only the backend using Docker, ignoring everything else
 
 [build]
 builder = "dockerfile"
 dockerfilePath = "Dockerfile.railway"
 
-# Force Docker build and ignore Nixpacks
+# Force Docker build and completely ignore Nixpacks
 [build.docker]
 dockerfile = "Dockerfile.railway"
 context = "."
+ignore = [".nixpacks", "../package.json", "../package-lock.json"]
 
 # Explicitly set the build context to backend only
 [build.context]
@@ -21,8 +22,13 @@ exclude = [
     "../node_modules",
     "../frontend",
     "../.git",
-    ".nixpacks"
+    ".nixpacks",
+    "../.nixpacks"
 ]
+
+# Force Railway to use this directory only
+[project]
+root = "."
 
 [deploy]
 startCommand = "npm run start:prod"

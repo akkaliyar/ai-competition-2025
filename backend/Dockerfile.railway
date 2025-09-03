@@ -1,6 +1,6 @@
 # Railway Production Dockerfile - AI Competition Backend
 # Build Date: 2025-09-03
-# Version: 6.0.0 - SIMPLIFIED BUILD
+# Version: 7.0.0 - ROOT CONTEXT FIXED
 
 # Use Node.js 20 Alpine as base image
 FROM node:20-alpine AS builder
@@ -15,14 +15,16 @@ RUN apk add --no-cache \
     poppler-utils \
     && rm -rf /var/cache/apk/*
 
-# Copy package files first for better caching
-COPY package*.json ./
+# Copy backend package files first for better caching
+COPY backend/package*.json ./
 
 # Install ALL dependencies (including dev dependencies for build)
 RUN npm install --no-audit --no-fund
 
-# Copy source code
-COPY . .
+# Copy backend source code only
+COPY backend/src ./src
+COPY backend/tsconfig.json ./
+COPY backend/nest-cli.json ./
 
 # Build the application
 RUN npm run build
@@ -43,8 +45,8 @@ RUN apk add --no-cache \
     poppler-utils \
     && rm -rf /var/cache/apk/*
 
-# Copy package files
-COPY package*.json ./
+# Copy backend package files
+COPY backend/package*.json ./
 
 # Install ONLY production dependencies
 RUN npm install --omit=dev --no-audit --no-fund --prefer-offline=false
