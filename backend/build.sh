@@ -9,7 +9,7 @@ rm -rf dist
 
 # Install dependencies
 echo "📦 Installing dependencies..."
-npm ci --only=production
+npm install --production
 
 # Build the application
 echo "🏗️ Building application..."

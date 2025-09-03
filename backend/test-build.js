@@ -13,7 +13,7 @@ try {
 
   // Install dependencies
   console.log('📦 Installing dependencies...');
-  execSync('npm ci', { stdio: 'inherit' });
+  execSync('npm install --production', { stdio: 'inherit' });
 
   // Build the application
   console.log('🏗️ Building application...');

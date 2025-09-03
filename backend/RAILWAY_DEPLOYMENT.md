@@ -56,6 +56,11 @@ Railway will automatically detect the `railway.toml` file and use:
 2. Monitor the build logs for any errors
 3. Check the health endpoint: `https://your-app.railway.app/health`
 
+### Pre-Deployment Checklist:
+- ✅ Run `node fix-package-lock.js` to ensure package-lock.json is synchronized
+- ✅ Commit the updated package-lock.json to your repository
+- ✅ Ensure all source files are committed
+
 ### If Build Fails:
 1. Go to your project's "Deployments" tab
 2. Click on the failed deployment
@@ -81,6 +86,10 @@ Railway will automatically detect the `railway.toml` file and use:
    - Clear Railway build cache
    - Ensure package-lock.json is committed
    - Check for dependency conflicts
+   - **NEW**: If you get "Missing: [package] from lock file" errors:
+     - Run `node fix-package-lock.js` locally to regenerate the lock file
+     - Commit the new package-lock.json
+     - Redeploy on Railway
 
 2. **Build script errors**:
    - Verify build.sh has execute permissions
