@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ProcessedFile } from '../types/ProcessedFile';
-import { API_BASE_URL } from '../config/api';
+
+const API_BASE_URL = 'http://localhost:3001/api';
 
 interface DashboardProps {
   files: ProcessedFile[];
