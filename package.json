@@ -1,0 +1,18 @@
+{
+  "name": "ai-crm-monorepo",
+  "version": "1.0.0",
+  "description": "AI CRM Application",
+  "scripts": {
+    "build": "npm run install:deps && npm run build:app",
+    "install:deps": "if [ \"$SERVICE_TYPE\" = \"frontend\" ]; then cd frontend && npm ci; else cd backend && npm ci; fi",
+    "build:app": "if [ \"$SERVICE_TYPE\" = \"frontend\" ]; then cd frontend && npm run build; else cd backend && npm run build; fi",
+    "start": "if [ \"$SERVICE_TYPE\" = \"frontend\" ]; then npm run start:frontend; else npm run start:backend; fi",
+    "start:backend": "cd backend && npm start",
+    "start:frontend": "cd frontend && npm start",
+    "dev": "if [ \"$SERVICE_TYPE\" = \"frontend\" ]; then cd frontend && npm run dev; else cd backend && npm run start:dev; fi"
+  },
+  "engines": {
+    "node": "20.x",
+    "npm": "9.x"
+  }
+}
