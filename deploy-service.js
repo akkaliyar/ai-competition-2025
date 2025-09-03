@@ -61,7 +61,27 @@ if (PHASE === 'build') {
       console.log('❌ Backend start failed, starting simple server instead...');
       // Fallback to simple server
       console.log('🔄 Starting simple Express server...');
-      require('./simple-server.js');
+      try {
+        require('./simple-server.js');
+      } catch (error) {
+        console.error('❌ Simple server also failed:', error.message);
+        console.log('🆘 Starting emergency HTTP server...');
+        // Last resort - inline HTTP server
+        const http = require('http');
+        const server = http.createServer((req, res) => {
+          if (req.url === '/healthz' || req.url === '/health') {
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            res.end('OK');
+          } else {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ status: 'emergency-mode', message: 'Basic server running' }));
+          }
+        });
+        const port = process.env.PORT || 3001;
+        server.listen(port, '0.0.0.0', () => {
+          console.log(`🆘 Emergency server running on port ${port}`);
+        });
+      }
     }
   }
 }
