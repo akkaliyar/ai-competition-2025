@@ -1,11 +1,2 @@
-[phases.setup]
-nixPkgs = ["nodejs_20", "npm"]
-
-[phases.install]
-cmds = ["npm install --omit=dev"]
-
-[phases.build]
-cmds = ["npm run build"]
-
-[start]
-cmd = "npm run start:prod"
+# Nixpacks disabled - using Docker instead
+# This file is intentionally empty to prevent Railway from using Nixpacks

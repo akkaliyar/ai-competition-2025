@@ -5,6 +5,11 @@
 builder = "dockerfile"
 dockerfilePath = "Dockerfile.railway"
 
+# Force Docker build and ignore Nixpacks
+[build.docker]
+dockerfile = "Dockerfile.railway"
+context = "."
+
 # Explicitly set the build context to backend only
 [build.context]
 path = "."
@@ -15,7 +20,8 @@ exclude = [
     "../package-lock.json", 
     "../node_modules",
     "../frontend",
-    "../.git"
+    "../.git",
+    ".nixpacks"
 ]
 
 [deploy]
