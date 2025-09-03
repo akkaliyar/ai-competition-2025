@@ -1,106 +1,35 @@
-# Exclude ALL old Docker files to prevent cache conflicts
-Dockerfile*
-!Dockerfile.railway
-.dockerignore
-docker-compose.yml
+# ULTRA AGGRESSIVE - Ignore everything except backend
+# This ensures Railway ONLY sees backend files
 
-# Node.js files
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# Ignore ALL root files
+../package.json
+../package-lock.json
+../node_modules
+../frontend
+../.git
+../.nixpacks
+../.railwayignore
+../.dockerignore
+../Dockerfile*
 
-# Build outputs
-dist/
-build/
-*.tsbuildinfo
+# Ignore root scripts and docs
+../deploy.sh
+../cleanup-project.sh
+../remove-unused-files.sh
+../*.md
 
-# Environment files
-.env*
-!.env.example
+# Ignore any potential root build files
+../dist
+../build
+../.env
+../.env.*
 
-# Logs
-*.log
-logs/
-
-# Runtime data
-pids/
-*.pid
-*.seed
-*.pid.lock
-
-# Coverage directory used by tools like istanbul
-coverage/
-*.lcov
-
-# nyc test coverage
-.nyc_output
-
-# Dependency directories
-jspm_packages/
-
-# Optional npm cache directory
-.npm
-
-# Optional eslint cache
-.eslintcache
-
-# Microbundle cache
-.rpt2_cache/
-.rts2_cache_cjs/
-.rts2_cache_es/
-.rts2_cache_umd/
-
-# Optional REPL history
-.node_repl_history
-
-# Output of 'npm pack'
-*.tgz
-
-# Yarn Integrity file
-.yarn-integrity
-
-# parcel-bundler cache (https://parceljs.org/)
-.cache
-.parcel-cache
-
-# Next.js build output
-.next
-
-# Nuxt.js build / generate output
-.nuxt
-
-# Storybook build outputs
-.out
-.storybook-out
-
-# Temporary folders
-tmp/
-temp/
-
-# Editor directories and files
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Test files
-test-*.js
-fix-*.js
-add-*.js
-remove-*.js
-*.sql
-
-# Uploads (will be created at runtime)
-uploads/*
-!uploads/.gitkeep
+# Only allow backend files
+!package.json
+!package-lock.json
+!src/
+!tsconfig.json
+!nest-cli.json
+!Dockerfile.railway.v2
+!railway.toml
+!.railwayignore

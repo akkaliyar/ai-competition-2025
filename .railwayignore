@@ -19,6 +19,8 @@ node_modules/
 Dockerfile*
 .dockerignore
 
-# Keep only backend and frontend directories
+# Only allow backend directory - frontend will be deployed separately
 !backend/
-!frontend/
+
+# Explicitly ignore frontend to prevent conflicts
+frontend/
