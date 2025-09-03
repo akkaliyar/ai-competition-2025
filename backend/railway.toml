@@ -1,11 +1,11 @@
-# Railway Configuration for Backend Only - ULTRA AGGRESSIVE DOCKER FORCE
-# This ensures Railway builds ONLY the backend using Docker, completely ignoring root
+# Railway Configuration for Backend ONLY - ULTRA AGGRESSIVE
+# This forces Railway to ONLY deploy backend, completely ignoring frontend
 
 [build]
 builder = "dockerfile"
 dockerfilePath = "Dockerfile.railway.v2"
 
-# Override build command to force Docker with explicit backend context
+# Force Docker build with explicit backend context
 buildCommand = "docker build -f Dockerfile.railway.v2 --no-cache --build-arg CONTEXT=backend ."
 
 # Force Docker build and completely ignore everything else
@@ -14,20 +14,21 @@ dockerfile = "Dockerfile.railway.v2"
 context = "."
 ignore = [
     ".nixpacks", 
-    "../package.json", 
-    "../package-lock.json",
+    "../package.json*", 
+    "../package-lock.json*",
     "../frontend",
     "../.git",
     "../.nixpacks",
-    "../node_modules"
+    "../node_modules",
+    "../*"
 ]
 
 # Explicitly set the build context to backend only
 [build.context]
 path = "."
 exclude = [
-    "../package.json",
-    "../package-lock.json", 
+    "../package.json*",
+    "../package-lock.json*", 
     "../node_modules",
     "../frontend",
     "../.git",
@@ -35,7 +36,8 @@ exclude = [
     "../.nixpacks",
     "../deploy.sh",
     "../cleanup-project.sh",
-    "../remove-unused-files.sh"
+    "../remove-unused-files.sh",
+    "../*"
 ]
 
 # Force Railway to use this directory only
@@ -46,7 +48,9 @@ root = "."
 [service]
 type = "backend"
 framework = "nestjs"
+monorepo = false
 
+# Force single service deployment
 [deploy]
 startCommand = "npm run start:prod"
 healthcheckPath = "/health"
@@ -54,6 +58,7 @@ healthcheckTimeout = 300
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
 
+# Environment variables
 [env]
 NODE_ENV = "production"
 PORT = "3001"
