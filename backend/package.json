@@ -6,10 +6,8 @@
   "scripts": {
     "build": "nest build",
     "postbuild": "mkdir -p dist/entities && cp -r src/entities/* dist/entities/ || echo 'Entities copy completed'",
-    "railway:build": "npm install --omit=dev --no-audit --no-fund && npm run build",
-    "railway:start": "npm run start:prod",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start",
+    "start": "npm run build && npm run start:prod",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main.js",
