@@ -12,6 +12,12 @@ restartPolicyMaxRetries = 3
 NODE_ENV = "production"
 SERVICE_TYPE = "backend"
 PORT = "3001"
+DATABASE_URL = "${{MYSQL_URL}}"
+DB_HOST = "${{MYSQLHOST}}"
+DB_PORT = "${{MYSQLPORT}}"
+DB_USERNAME = "${{MYSQLUSER}}"
+DB_PASSWORD = "${{MYSQLPASSWORD}}"
+DB_NAME = "${{MYSQLDATABASE}}"
 
 # To deploy frontend as separate service:
 # 1. Create new Railway service from same repo
