@@ -6,6 +6,8 @@
   "scripts": {
     "build": "nest build",
     "postbuild": "cp -r src/entities dist/src/entities",
+    "railway:build": "npm install --omit=dev --no-audit --no-fund && npm run build",
+    "railway:start": "npm run start:prod",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",

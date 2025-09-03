@@ -1,0 +1,16 @@
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "npm run start:prod"
+healthcheckPath = "/health"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
+
+[env]
+NODE_ENV = "production"
+PORT = "3001"
+NPM_CONFIG_PREFER_OFFLINE = "false"
+NPM_CONFIG_AUDIT = "false"
+NPM_CONFIG_FUND = "false"
