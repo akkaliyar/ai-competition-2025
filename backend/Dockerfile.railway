@@ -1,6 +1,6 @@
 # Railway Production Dockerfile - AI Competition Backend
 # Build Date: 2025-09-03
-# Version: 3.0.0
+# Version: 5.0.0 - COMPLETE BUILD FIX
 
 # Use Node.js 20 Alpine as base image
 FROM node:20-alpine AS builder
@@ -19,13 +19,20 @@ RUN apk add --no-cache \
 COPY package*.json ./
 
 # Install ALL dependencies (including dev dependencies for build)
+# This ensures @nestjs/cli is available for the build command
 RUN npm install --no-audit --no-fund
 
 # Copy source code
 COPY . .
 
-# Build the application
+# Verify that nest CLI is available
+RUN npx nest --version
+
+# Build the application (this will work now because @nestjs/cli is installed)
 RUN npm run build
+
+# Verify the build output
+RUN ls -la dist/
 
 # Production stage
 FROM node:20-alpine AS production
@@ -43,7 +50,7 @@ RUN apk add --no-cache \
 # Copy package files
 COPY package*.json ./
 
-# Install ONLY production dependencies
+# Install ONLY production dependencies (excludes devDependencies like @nestjs/cli)
 RUN npm install --omit=dev --no-audit --no-fund --prefer-offline=false
 
 # Copy built application from builder stage
@@ -55,6 +62,9 @@ RUN mkdir -p uploads
 
 # Set permissions
 RUN chmod 755 uploads
+
+# Verify the production build
+RUN ls -la dist/
 
 # Expose port
 EXPOSE 3001

@@ -1,35 +1,50 @@
+# Dependencies
 node_modules
-npm-debug.log
-.git
-.gitignore
-README.md
-.env
-.env.local
-.env.development
-.env.test
-.env.production
-.nyc_output
-coverage
-.nyc_output
-.coverage
-.cache
+*/node_modules
+
+# Build outputs
 dist
 build
-*.log
-.DS_Store
-Thumbs.db
+*/dist
+*/build
+
+# Environment files
+.env
+.env.local
+.env.production
+*/env.example
+
+# Git
+.git
+.gitignore
+
+# IDE
 .vscode
 .idea
 *.swp
 *.swo
-*~
-frontend/
-uploads/*
-!uploads/.gitkeep
-test-*.js
-fix-*.js
-add-*.js
-remove-*.js
-*.sql
-railway.toml
-Procfile
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test coverage
+coverage
+.nyc_output
+
+# Temporary files
+*.tmp
+*.temp
+
+# Uploads (will be created in container)
+uploads
+*/uploads
+
+# Docker files (to avoid recursion)
+Dockerfile*
+.dockerignore
+docker-compose.yml
