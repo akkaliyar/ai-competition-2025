@@ -3,12 +3,13 @@
   "version": "1.0.0",
   "description": "AI CRM Application - Deploys backend or frontend based on SERVICE_TYPE env var",
   "scripts": {
-    "build": "npm run build:frontend && BUILD_PHASE=build node deploy-service.js",
-    "start": "node serve-frontend-backend.js",
-    "build:frontend": "cd frontend && npm ci && npm run build && cd .. && cp -r frontend/build .",
+    "build": "BUILD_PHASE=build node deploy-service.js",
+    "start": "BUILD_PHASE=start node deploy-service.js",
+    "start:simple": "node simple-server.js",
     "build:backend": "cd backend && npm ci && npm run build",
     "start:backend": "cd backend && npm start",
-    "start:simple": "node simple-server.js",
+    "build:frontend": "cd frontend && npm ci && npm run build", 
+    "start:frontend": "cd frontend && npm start",
     "dev:backend": "cd backend && npm run start:dev",
     "dev:frontend": "cd frontend && npm run dev"
   },
@@ -17,7 +18,6 @@
     "npm": "9.x"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "http-proxy-middleware": "^2.0.6"
+    "express": "^4.18.2"
   }
 }
