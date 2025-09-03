@@ -3,8 +3,7 @@ import axios from 'axios';
 import { ProcessedFile } from '../types/ProcessedFile';
 import DataTable from './DataTable';
 import StructuredTableView from './StructuredTableView';
-
-const API_BASE_URL = 'http://localhost:3001/api';
+import { API_BASE_URL } from '../config/api';
 
 interface ResultsDisplayProps {
   files: ProcessedFile[];
