@@ -2629,6 +2629,158 @@ export class FileProcessingService {
     };
   }
 
+  private extractGenericStructuredData(text: string, lines: string[]): any {
+    const structuredData: any = {
+      document: {},
+      company: {},
+      personal: {},
+      financial: {},
+      dates: {},
+      identifiers: {},
+      amounts: {},
+      metadata: {}
+    };
+
+    // Extract company/organization information
+    const companyMatch = text.match(/^([^\n]+)/);
+    if (companyMatch) {
+      structuredData.company.name = companyMatch[1].trim();
+    }
+
+    const addressMatch = text.match(/^[^\n]+\n([^\n]+)/);
+    if (addressMatch) {
+      structuredData.company.address = addressMatch[1].trim();
+    }
+
+    // Extract document type and period
+    const documentTypeMatch = text.match(/(payslip|invoice|bill|receipt|statement|report)\s+(?:for\s+the\s+)?(?:month\s+of\s+)?([^\n]+)/i);
+    if (documentTypeMatch) {
+      structuredData.document.type = documentTypeMatch[1].toLowerCase();
+      structuredData.document.period = documentTypeMatch[2].trim();
+    }
+
+    // Extract personal information (name, code, designation, etc.)
+    const namePatterns = [
+      /(?:employee|customer|client|name)\s*:?\s*([^\n]+)/i,
+      /(?:name)\s*:?\s*([^\n]+)/i
+    ];
+    
+    for (const pattern of namePatterns) {
+      const match = text.match(pattern);
+      if (match) {
+        structuredData.personal.name = match[1].trim();
+        break;
+      }
+    }
+
+    const codePatterns = [
+      /(?:employee|customer|client|account|id)\s*(?:code|number|id)\s*:?\s*([^\n]+)/i,
+      /(?:code|number|id)\s*:?\s*([^\n]+)/i
+    ];
+    
+    for (const pattern of codePatterns) {
+      const match = text.match(pattern);
+      if (match) {
+        structuredData.personal.code = match[1].trim();
+        break;
+      }
+    }
+
+    const designationMatch = text.match(/(?:designation|title|position|role)\s*:?\s*([^\n]+)/i);
+    if (designationMatch) {
+      structuredData.personal.designation = designationMatch[1].trim();
+    }
+
+    const departmentMatch = text.match(/(?:department|division|section)\s*:?\s*([^\n]+)/i);
+    if (departmentMatch) {
+      structuredData.personal.department = departmentMatch[1].trim();
+    }
+
+    // Extract financial information
+    const amountPattern = /([a-zA-Z\s]+)\s*([\d,]+\.?\d*)/gi;
+    const amountMatches = text.matchAll(amountPattern);
+    
+    for (const match of amountMatches) {
+      const field = match[1].trim().toLowerCase();
+      const amount = parseFloat(match[2].replace(/,/g, ''));
+      
+      if (!isNaN(amount)) {
+        if (field.includes('total') || field.includes('sum')) {
+          structuredData.financial.total = amount;
+        } else if (field.includes('net') || field.includes('salary') || field.includes('amount')) {
+          structuredData.financial.netAmount = amount;
+        } else if (field.includes('basic') || field.includes('base')) {
+          structuredData.financial.basic = amount;
+        } else if (field.includes('allowance') || field.includes('bonus')) {
+          if (!structuredData.financial.allowances) {
+            structuredData.financial.allowances = {};
+          }
+          structuredData.financial.allowances[field] = amount;
+        } else if (field.includes('deduction') || field.includes('tax')) {
+          if (!structuredData.financial.deductions) {
+            structuredData.financial.deductions = {};
+          }
+          structuredData.financial.deductions[field] = amount;
+        } else {
+          if (!structuredData.amounts) {
+            structuredData.amounts = {};
+          }
+          structuredData.amounts[field] = amount;
+        }
+      }
+    }
+
+    // Extract dates
+    const datePatterns = [
+      /(?:date|month|year|period)\s*:?\s*([^\n]+)/gi,
+      /(\d{1,2}\/\d{1,2}\/\d{4})/g,
+      /(\d{4}-\d{2}-\d{2})/g
+    ];
+    
+    for (const pattern of datePatterns) {
+      const matches = text.matchAll(pattern);
+      for (const match of matches) {
+        if (!structuredData.dates) {
+          structuredData.dates = [];
+        }
+        structuredData.dates.push(match[1].trim());
+      }
+    }
+
+    // Extract identifiers (PAN, account numbers, etc.)
+    const identifierPatterns = [
+      /(?:pan|account|account\s+no|bank\s+account)\s*:?\s*([^\n]+)/gi,
+      /([A-Z0-9]{10,})/g
+    ];
+    
+    for (const pattern of identifierPatterns) {
+      const matches = text.matchAll(pattern);
+      for (const match of matches) {
+        if (!structuredData.identifiers) {
+          structuredData.identifiers = [];
+        }
+        structuredData.identifiers.push(match[1].trim());
+      }
+    }
+
+    // Add metadata
+    structuredData.metadata = {
+      extractionMethod: 'generic_intelligent_parser',
+      confidence: 0.85,
+      detectedStructure: 'generic_document',
+      documentType: 'auto_detected',
+      extractedFields: Object.keys(structuredData).filter(key => 
+        key !== 'metadata' && 
+        structuredData[key] && 
+        Object.keys(structuredData[key]).length > 0
+      ),
+      hasStructuredFormat: true,
+      isGenericParser: true
+    };
+
+    return structuredData;
+  }
+
   private extractStructuredPayslipData(text: string, lines: string[]): any {
     const structuredData: any = {
       employee: {},
