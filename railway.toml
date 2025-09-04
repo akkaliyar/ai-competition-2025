@@ -8,10 +8,17 @@ healthcheckTimeout = 300
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
 
+# Additional health check configuration
+[deploy.healthcheck]
+path = "/healthz"
+timeout = 300
+interval = 30
+retries = 3
+
 [env]
 NODE_ENV = "production"
 SERVICE_TYPE = "backend"
-PORT = "3001"
+PORT = "8080"
 
 # Database variables should be set manually in Railway dashboard
 # See RAILWAY_ENV_SETUP.md for instructions

@@ -21,6 +21,9 @@ export class HealthController {
   healthz(@Res() res: Response) {
     // Railway health check endpoint (simplest possible)
     console.log('🔍 Health check requested from Railway');
+    console.log('📊 Process uptime:', process.uptime());
+    console.log('📊 Memory usage:', process.memoryUsage());
+    console.log('📊 Environment:', process.env.NODE_ENV);
     res.status(200).send('OK');
   }
 
@@ -45,12 +48,15 @@ export class HealthController {
 
   @Get()
   root() {
+    console.log('🏠 Root endpoint accessed');
     return {
       message: 'AI CRM Backend API',
       status: 'running',
       timestamp: new Date().toISOString(),
       version: '1.0.0',
-      endpoints: ['/healthz', '/health', '/status', '/ping']
+      endpoints: ['/healthz', '/health', '/status', '/ping'],
+      uptime: process.uptime(),
+      environment: process.env.NODE_ENV || 'development'
     };
   }
 }
