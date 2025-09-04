@@ -105,143 +105,213 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ files, onRefresh }) => 
       .replace(/\n\s*\n/g, '\n\n') // Remove excessive empty lines
       .trim();
     
-    // Special formatting for payslip data
-    if (formattedText.toLowerCase().includes('payslip')) {
-      // Add section separators and better formatting
-      formattedText = formattedText
-        .replace(/(Company|Employee|Bank|Salary|Total|Net Salary)/g, '\n\n=== $1 ===\n')
-        .replace(/(Basic|House Rent|Conveyance|Medical|Special|Provident Fund|Income Tax)/g, '\n• $1:')
-        .replace(/(\d{1,3}(?:,\d{3})*\.\d{2})/g, ' ₹$1') // Format currency amounts
-        .replace(/(\d{1,2}\/\d{1,2}\/\d{4})/g, ' 📅 $1') // Format dates
-        .replace(/(\d{2,3})/g, ' #$1'); // Format numbers like employee code, days
-    }
+    // Generic formatting for any document type
+    formattedText = formattedText
+      .replace(/(\d{1,3}(?:,\d{3})*\.\d{2})/g, ' ₹$1') // Format currency amounts
+      .replace(/(\d{1,2}\/\d{1,2}\/\d{4})/g, ' 📅 $1') // Format dates
+      .replace(/(\d{2,3})/g, ' #$1'); // Format numbers
     
     return formattedText;
   };
 
-  // Parse extracted text into structured JSON format
+  // Enhanced text formatting with better structure - Generic version
+  const formatEnhancedText = (text: string): string => {
+    if (!text) return 'No text available';
+    
+    let enhancedText = text
+      .replace(/\\n/g, '\n')
+      .replace(/\n\s*\n/g, '\n\n')
+      .trim();
+    
+    // Generic document formatting - works with any document type
+    enhancedText = enhancedText
+      // Company/Organization patterns
+      .replace(/([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(?:Private|Public|Limited|Corp|Inc|LLC))/g, '🏢 $1')
+      .replace(/(\d+[A-Z]?,\s*[A-Za-z\s]+,\s*[A-Za-z\s]+\s*–?\s*\d{6})/g, '📍 $1')
+      
+      // Generic key-value patterns
+      .replace(/([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)([^\n]+?)(?=\n[A-Z]|$)/g, '📝 $1: $2')
+      
+      // Amount patterns
+      .replace(/(\d{1,3}(?:,\d{3})*\.\d{2})/g, '💰 ₹$1')
+      
+      // Date patterns
+      .replace(/(\d{1,2}\/\d{1,2}\/\d{4})/g, '📅 $1')
+      .replace(/(\d{1,2}\s+[A-Za-z]+\s+\d{4})/g, '📅 $1')
+      
+      // ID/Code patterns
+      .replace(/([A-Z]{2,8}\d{3,6})/g, '🆔 $1')
+      .replace(/(\d{10,16})/g, '💳 $1')
+      
+      // Section headers
+      .replace(/(Total|Net|Summary|Details|Information)/g, '📊 $1')
+      
+      // Currency words
+      .replace(/(Rs\.\s+)([^)]+)/g, '💬 $1$2');
+    
+    return enhancedText;
+  };
+
+  // Parse extracted text into structured JSON format - Generic version
   const parseToStructuredJson = (text: string): any => {
     if (!text) return null;
     
-    const payslipData: any = {};
-    
     try {
-      // Employee Information - More precise extraction
-      const employeeMatch = text.match(/Employee Name([^\n]+?)(?=Payable|$)/);
-      const codeMatch = text.match(/Employee Code([^\n]+?)(?=Paid|$)/);
-      const designationMatch = text.match(/Designation([^\n]+?)(?=Paid|$)/);
-      const departmentMatch = text.match(/Department([^\n]+?)(?=Joining|$)/);
-      const joiningMatch = text.match(/Joining Date([^\n]+?)(?=Bank|$)/);
-      const locationMatch = text.match(/Location([^\n]+?)(?=Provident|$)/);
-      
-      payslipData.employee = {
-        name: employeeMatch ? employeeMatch[1].trim() : '',
-        code: codeMatch ? codeMatch[1].trim() : '',
-        designation: designationMatch ? designationMatch[1].trim() : '',
-        department: departmentMatch ? departmentMatch[1].trim() : '',
-        joiningDate: joiningMatch ? joiningMatch[1].trim() : '',
-        location: locationMatch ? locationMatch[1].trim() : ''
+      const structuredData: any = {
+        documentType: 'generic',
+        extractedAt: new Date().toISOString(),
+        sections: {}
       };
       
-      // Payslip Information - Cleaner extraction
-      const monthMatch = text.match(/Payslip for the Month of ([^\n]+)/);
-      const payableMatch = text.match(/Payable Days([0-9]+)/);
-      const paidMatch = text.match(/Paid Days([0-9]+)/);
-      const arrearMatch = text.match(/Arrear ([0-9]+)/);
+      // Generic field extraction using common patterns
+      const lines = text.split('\n').filter(line => line.trim().length > 0);
       
-      payslipData.payslip = {
-        company: 'WhizCloud Private Limited',
-        address: 'A-40, Sector 57, Noida, Uttar Pradesh – 201301',
-        month: monthMatch ? monthMatch[1].trim() : '',
-        payableDays: payableMatch ? parseInt(payableMatch[1]) : 0,
-        paidDays: paidMatch ? parseInt(paidMatch[1]) : 0,
-        arrearDays: arrearMatch ? parseInt(arrearMatch[1]) : 0
-      };
+      // Extract company/organization information
+      const companyMatch = text.match(/([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(?:Private|Public|Limited|Corp|Inc|LLC))/);
+      if (companyMatch) {
+        structuredData.sections.company = {
+          name: companyMatch[1].trim(),
+          type: 'organization'
+        };
+      }
       
-      // Bank Information - More precise extraction
-      const bankMatch = text.match(/Bank Name([^\n]+?)(?=PANDTQPK|$)/);
-      const accountMatch = text.match(/Bank Account No([0-9]+)/);
+      // Extract address information
+      const addressMatch = text.match(/(\d+[A-Z]?,\s*[A-Za-z\s]+,\s*[A-Za-z\s]+\s*–?\s*\d{6})/);
+      if (addressMatch) {
+        structuredData.sections.address = {
+          fullAddress: addressMatch[1].trim(),
+          type: 'location'
+        };
+      }
       
-      payslipData.bank = {
-        name: bankMatch ? bankMatch[1].trim() : '',
-        accountNo: accountMatch ? accountMatch[1].trim() : '',
-        pan: 'DTQPK9905J'
-      };
+      // Extract key-value pairs dynamically
+      const keyValuePairs: any = {};
+      lines.forEach(line => {
+        // Look for patterns like "Key: Value" or "Key Value"
+        const keyValueMatch = line.match(/^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s*[:]?\s*(.+)$/);
+        if (keyValueMatch) {
+          const key = keyValueMatch[1].trim();
+          const value = keyValueMatch[2].trim();
+          
+          // Clean up the key name
+          const cleanKey = key.replace(/\s+/g, '').toLowerCase();
+          keyValuePairs[cleanKey] = value;
+        }
+      });
       
-      // Statutory Information - Cleaner extraction
-      const pfMatch = text.match(/Provident Fund No([^\n]+?)(?=Grade|$)/);
-      const uanMatch = text.match(/UAN([0-9]+)/);
+      if (Object.keys(keyValuePairs).length > 0) {
+        structuredData.sections.keyValuePairs = keyValuePairs;
+      }
       
-      payslipData.statutory = {
-        providentFundNo: pfMatch ? pfMatch[1].trim() : '',
-        uan: uanMatch ? uanMatch[1].trim() : ''
-      };
+      // Extract numeric amounts
+      const amounts = text.match(/\d{1,3}(?:,\d{3})*\.\d{2}/g) || [];
+      if (amounts.length > 0) {
+        structuredData.sections.numericData = {
+          amounts: amounts.map(amt => parseFloat(amt.replace(/,/g, ''))),
+          currency: 'INR',
+          count: amounts.length
+        };
+      }
       
-      // Earnings - Much more precise extraction
-      const basicMatch = text.match(/Basic([0-9,]+\.?[0-9]*)/);
-      const hraMatch = text.match(/House Rent Allowance([0-9,]+\.?[0-9]*)/);
-      const conveyanceMatch = text.match(/Conveyance Allowance([0-9,]+\.?[0-9]*)/);
-      const medicalMatch = text.match(/Medical Allowance([0-9,]+\.?[0-9]*)/);
-      const specialMatch = text.match(/Special Allowance([0-9,]+\.?[0-9]*)/);
+      // Extract dates
+      const dates = text.match(/\d{1,2}\/\d{1,2}\/\d{4}|\d{1,2}\s+[A-Za-z]+\s+\d{4}/g) || [];
+      if (dates.length > 0) {
+        structuredData.sections.dates = {
+          foundDates: dates,
+          count: dates.length
+        };
+      }
       
-      payslipData.earnings = {
-        basic: basicMatch ? parseFloat(basicMatch[1].replace(/,/g, '')) : 0,
-        houseRentAllowance: hraMatch ? parseFloat(hraMatch[1].replace(/,/g, '')) : 0,
-        conveyanceAllowance: conveyanceMatch ? parseFloat(conveyanceMatch[1].replace(/,/g, '')) : 0,
-        medicalAllowance: medicalMatch ? parseFloat(medicalMatch[1].replace(/,/g, '')) : 0,
-        specialAllowance: specialMatch ? parseFloat(specialMatch[1].replace(/,/g, '')) : 0,
-        totalEarnings: 108200 // Direct from text
-      };
+      // Extract IDs/Codes
+      const codes = text.match(/[A-Z]{2,8}\d{3,6}/g) || [];
+      if (codes.length > 0) {
+        structuredData.sections.identifiers = {
+          codes: codes,
+          count: codes.length
+        };
+      }
       
-      // Deductions - More precise extraction
-      const pfDeductionMatch = text.match(/Provident Fund[^0-9]*([0-9,]+\.?[0-9]*)/);
-      const taxMatch = text.match(/IncomeTax[^0-9]*([0-9,]+\.?[0-9]*)/);
+      // Extract account numbers
+      const accounts = text.match(/\d{10,16}/g) || [];
+      if (accounts.length > 0) {
+        structuredData.sections.accounts = {
+          numbers: accounts,
+          count: accounts.length
+        };
+      }
       
-      payslipData.deductions = {
-        providentFund: pfDeductionMatch ? parseFloat(pfDeductionMatch[1].replace(/,/g, '')) : 0,
-        incomeTax: taxMatch ? parseFloat(taxMatch[1].replace(/,/g, '')) : 0,
-        totalDeductions: 7169 // Direct from text
-      };
-      
-      // Net Salary - More precise extraction
-      const netSalaryMatch = text.match(/Net Salary[^0-9]*([0-9,]+\.?[0-9]*)/);
-      const inWordsMatch = text.match(/Rs\. ([^)]+)/);
-      
-      payslipData.netSalary = {
-        amount: netSalaryMatch ? parseFloat(netSalaryMatch[1].replace(/,/g, '')) : 0,
-        inWords: inWordsMatch ? inWordsMatch[1].trim() : ''
-      };
-      
-      return payslipData;
+      return structuredData;
     } catch (error) {
-      console.error('Error parsing payslip data:', error);
+      console.error('Error parsing generic data:', error);
       return null;
     }
   };
 
-  // Create a very simple, clean format
+  // Create a very simple, clean format - Generic version
   const parseToSimpleFormat = (text: string): any => {
     if (!text) return null;
     
     try {
-      // Extract key information with very simple patterns
-      const employeeMatch = text.match(/Employee Name([^\n]+?)(?=Payable|$)/);
-      const codeMatch = text.match(/Employee Code([^\n]+?)(?=Paid|$)/);
-      const monthMatch = text.match(/Payslip for the Month of ([^\n]+)/);
-      const basicMatch = text.match(/Basic([0-9,]+\.?[0-9]*)/);
-      const netSalaryMatch = text.match(/Net Salary[^0-9]*([0-9,]+\.?[0-9]*)/);
-      
-      return {
-        employee: employeeMatch ? employeeMatch[1].trim() : '',
-        code: codeMatch ? codeMatch[1].trim() : '',
-        month: monthMatch ? monthMatch[1].trim() : '',
-        basic: basicMatch ? parseFloat(basicMatch[1].replace(/,/g, '')) : 0,
-        netSalary: netSalaryMatch ? parseFloat(netSalaryMatch[1].replace(/,/g, '')) : 0
+      const simpleData: any = {
+        documentType: 'generic',
+        summary: {}
       };
+      
+      // Count basic statistics
+      const lines = text.split('\n').filter(line => line.trim().length > 0);
+      const words = text.split(/\s+/).filter(word => word.trim().length > 0);
+      
+      simpleData.summary = {
+        totalLines: lines.length,
+        totalWords: words.length,
+        totalCharacters: text.length
+      };
+      
+      // Extract any amounts found
+      const amounts = text.match(/\d{1,3}(?:,\d{3})*\.\d{2}/g) || [];
+      if (amounts.length > 0) {
+        simpleData.summary.amounts = amounts.map(amt => parseFloat(amt.replace(/,/g, '')));
+        simpleData.summary.totalAmount = amounts.reduce((sum, amt) => sum + parseFloat(amt.replace(/,/g, '')), 0);
+      }
+      
+      // Extract any dates found
+      const dates = text.match(/\d{1,2}\/\d{1,2}\/\d{4}|\d{1,2}\s+[A-Za-z]+\s+\d{4}/g) || [];
+      if (dates.length > 0) {
+        simpleData.summary.dates = dates;
+      }
+      
+      return simpleData;
     } catch (error) {
       console.error('Error parsing simple format:', error);
       return null;
     }
+  };
+
+  // Extract key fields from text for summary - Generic version
+  const extractKeyFields = (text: string): string[] => {
+    const fields = [];
+    
+    // Generic field detection
+    if (text.match(/[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(?:Private|Public|Limited|Corp|Inc|LLC)/)) {
+      fields.push('Company Information');
+    }
+    if (text.match(/\d{1,3}(?:,\d{3})*\.\d{2}/)) {
+      fields.push('Financial Data');
+    }
+    if (text.match(/\d{1,2}\/\d{1,2}\/\d{4}|\d{1,2}\s+[A-Za-z]+\s+\d{4}/)) {
+      fields.push('Date Information');
+    }
+    if (text.match(/[A-Z]{2,8}\d{3,6}/)) {
+      fields.push('ID Codes');
+    }
+    if (text.match(/\d{10,16}/)) {
+      fields.push('Account Numbers');
+    }
+    if (text.match(/[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s*[:]?\s*[^\n]+/)) {
+      fields.push('Key-Value Data');
+    }
+    
+    return fields;
   };
 
   // Format JSON response with better structure for extractedText
@@ -256,13 +326,30 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ files, onRefresh }) => 
       const structuredData = parseToStructuredJson(formattedData.extractedText);
       if (structuredData) {
         // Add the structured data as a new field
-        formattedData.structuredPayslip = structuredData;
+        formattedData.genericStructuredData = structuredData;
         // Also format the raw text for readability
         formattedData.extractedText = formatExtractedText(formattedData.extractedText);
       } else {
         // Fallback to just formatting the text
         formattedData.extractedText = formatExtractedText(formattedData.extractedText);
       }
+    }
+    
+    // Add a summary section at the top for better readability
+    if (formattedData.extractedText) {
+      const summary = {
+        textSummary: {
+          totalCharacters: formattedData.extractedText.length,
+          totalWords: formattedData.extractedText.split(/\s+/).length,
+          totalLines: formattedData.extractedText.split('\n').length,
+          documentType: 'generic',
+          keyFields: extractKeyFields(formattedData.extractedText)
+        }
+      };
+      
+      // Insert summary at the beginning
+      const finalData = { summary, ...formattedData };
+      return JSON.stringify(finalData, null, 2);
     }
     
     return JSON.stringify(formattedData, null, 2);
@@ -288,16 +375,17 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ files, onRefresh }) => 
     setDetailsError(null);
     
     try {
-      // If file already has parsedContent, use it directly
-      if (file.parsedContent) {
-        // Initialize with simple format view active for better UX
-        setSelectedFile({
-          ...file,
-          showFormattedJson: false,
-          showStructuredPayslip: false,
-          showSimpleFormat: true
-        });
-      } else {
+              // If file already has parsedContent, use it directly
+        if (file.parsedContent) {
+          // Initialize with enhanced text view active for better UX
+          setSelectedFile({
+            ...file,
+            showFormattedJson: false,
+            showStructuredData: false,
+            showSimpleFormat: false,
+            showEnhancedText: true
+          });
+        } else {
         // Otherwise, fetch full details from server
         const fullFileData = await fetchFileDetails(file.id);
         if (fullFileData) {
@@ -305,8 +393,9 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ files, onRefresh }) => 
           setSelectedFile({
             ...fullFileData,
             showFormattedJson: false,
-            showStructuredPayslip: false,
-            showSimpleFormat: true
+            showStructuredData: true, // Set to true by default
+            showSimpleFormat: false,
+            showEnhancedText: false
           });
         } else {
           setDetailsError('Failed to load file details');
@@ -407,34 +496,43 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ files, onRefresh }) => 
                <div className="json-content">
                                    <div className="json-tabs">
                     <button 
-                      className={`json-tab-btn ${!selectedFile.showFormattedJson && !selectedFile.showStructuredPayslip && !selectedFile.showSimpleFormat ? 'active' : ''}`}
-                      onClick={() => setSelectedFile({...selectedFile, showFormattedJson: false, showStructuredPayslip: false, showSimpleFormat: false})}
+                      className={`json-tab-btn ${!selectedFile.showFormattedJson && !selectedFile.showStructuredData && !selectedFile.showSimpleFormat && !selectedFile.showEnhancedText ? 'active' : ''}`}
+                      onClick={() => setSelectedFile({...selectedFile, showFormattedJson: false, showStructuredData: false, showSimpleFormat: false, showEnhancedText: false})}
                     >
                       📄 Raw JSON
                     </button>
                     <button 
                       className={`json-tab-btn ${selectedFile.showFormattedJson ? 'active' : ''}`}
-                      onClick={() => setSelectedFile({...selectedFile, showFormattedJson: true, showStructuredPayslip: false, showSimpleFormat: false})}
+                      onClick={() => setSelectedFile({...selectedFile, showFormattedJson: true, showStructuredData: false, showSimpleFormat: false, showEnhancedText: false})}
                     >
                       🧹 Formatted JSON
                     </button>
                     <button 
-                      className={`json-tab-btn ${selectedFile.showStructuredPayslip ? 'active' : ''}`}
-                      onClick={() => setSelectedFile({...selectedFile, showFormattedJson: false, showStructuredPayslip: true, showSimpleFormat: false})}
+                      className={`json-tab-btn ${selectedFile.showStructuredData ? 'active' : ''}`}
+                      onClick={() => setSelectedFile({...selectedFile, showFormattedJson: false, showStructuredData: true, showSimpleFormat: false, showEnhancedText: false})}
                     >
-                      💰 Structured Payslip
+                      🔍 Intelligent Document Parser
                     </button>
                     <button 
                       className={`json-tab-btn ${selectedFile.showSimpleFormat ? 'active' : ''}`}
-                      onClick={() => setSelectedFile({...selectedFile, showFormattedJson: false, showStructuredPayslip: false, showSimpleFormat: true})}
+                      onClick={() => setSelectedFile({...selectedFile, showFormattedJson: false, showStructuredData: false, showSimpleFormat: true, showEnhancedText: false})}
                     >
                       ✨ Simple Format
+                    </button>
+                    <button 
+                      className={`json-tab-btn ${selectedFile.showEnhancedText ? 'active' : ''}`}
+                      onClick={() => setSelectedFile({...selectedFile, showFormattedJson: false, showStructuredData: false, showSimpleFormat: false, showEnhancedText: true})}
+                    >
+                      🎨 Enhanced Text View
                     </button>
                   </div>
                  
                                    {selectedFile.showFormattedJson ? (
                     <div className="formatted-json-content">
                       <h4>📋 Formatted Extracted Text</h4>
+                      <p className="enhanced-text-description">
+                        Clean, readable version of the extracted text with basic formatting and structure
+                      </p>
                       {selectedFile.extractedText && (
                         <div className="formatted-text-section">
                           <div className="text-preview">
@@ -446,26 +544,52 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ files, onRefresh }) => 
                       )}
                       
                       <h4>🔍 Complete JSON Response</h4>
+                      <p className="enhanced-text-description">
+                        Complete API response with enhanced structure and summary information
+                      </p>
                       <pre className="json-display">
                         {formatJsonResponse(selectedFile.jsonResponse || selectedFile)}
                       </pre>
                     </div>
-                  ) : selectedFile.showStructuredPayslip ? (
+                  ) : selectedFile.showStructuredData ? (
                     <div className="formatted-json-content">
-                      <h4>💰 Structured Payslip Data</h4>
-                      {selectedFile.extractedText && (
+                      <h4>🔍 Intelligent Document Parser</h4>
+                      <p className="enhanced-text-description">
+                        Advanced AI-powered parsing that automatically detects document structure and extracts data from any field, column, or format - works with invoices, receipts, forms, reports, and more
+                      </p>
+                      {selectedFile.structuredDocumentData ? (
                         <div className="formatted-text-section">
                           <div className="text-preview">
+                            <pre className="json-display">
+                              {JSON.stringify(selectedFile.structuredDocumentData, null, 2)}
+                            </pre>
+                          </div>
+                        </div>
+                      ) : selectedFile.extractedText ? (
+                        <div className="formatted-text-section">
+                          <div className="text-preview">
+                            <p className="enhanced-text-description">
+                              ⚠️ No structured data available from backend. Showing client-side parsed data instead.
+                            </p>
                             <pre className="json-display">
                               {JSON.stringify(parseToStructuredJson(selectedFile.extractedText), null, 2)}
                             </pre>
                           </div>
+                        </div>
+                      ) : (
+                        <div className="formatted-text-section">
+                                                      <p className="enhanced-text-description">
+                              ❌ No structured document data available to display
+                            </p>
                         </div>
                       )}
                     </div>
                   ) : selectedFile.showSimpleFormat ? (
                     <div className="formatted-json-content">
                       <h4>✨ Simple Format</h4>
+                      <p className="enhanced-text-description">
+                        Minimal, clean format showing only the most essential information
+                      </p>
                       {selectedFile.extractedText && (
                         <div className="formatted-text-section">
                           <div className="text-preview">
@@ -476,10 +600,41 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ files, onRefresh }) => 
                         </div>
                       )}
                     </div>
+                  ) : selectedFile.showEnhancedText ? (
+                    <div className="formatted-json-content">
+                      <h4>🎨 Enhanced Text View</h4>
+                      <p className="enhanced-text-description">
+                        Beautifully formatted extracted text with emojis, icons, and better structure for easy reading. 
+                        This view makes the raw extracted text much more readable and organized.
+                      </p>
+                      {selectedFile.extractedText && (
+                        <div className="formatted-text-section">
+                          <div className="text-preview">
+                            <pre className="enhanced-text-display">
+                              {formatEnhancedText(selectedFile.extractedText)}
+                            </pre>
+                          </div>
+                          <div className="text-actions">
+                            <button 
+                              onClick={() => navigator.clipboard.writeText(formatEnhancedText(selectedFile.extractedText || ''))}
+                              className="copy-btn"
+                            >
+                              📋 Copy Enhanced Text
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   ) : (
-                    <pre className="json-display">
-                      {JSON.stringify(selectedFile.jsonResponse || selectedFile, null, 2)}
-                    </pre>
+                    <div className="formatted-json-content">
+                      <h4>📄 Raw JSON Response</h4>
+                      <p className="enhanced-text-description">
+                        Unformatted raw API response data as received from the server
+                      </p>
+                      <pre className="json-display">
+                        {JSON.stringify(selectedFile.jsonResponse || selectedFile, null, 2)}
+                      </pre>
+                    </div>
                   )}
                </div>
              </div>

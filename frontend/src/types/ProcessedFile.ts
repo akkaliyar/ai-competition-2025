@@ -23,8 +23,10 @@ export interface ProcessedFile {
   averageConfidence?: number;
   mimeType?: string;
   showFormattedJson?: boolean; // For JSON view formatting toggle
-  showStructuredPayslip?: boolean; // For structured payslip view toggle
+  showStructuredData?: boolean; // For generic structured data view toggle
   showSimpleFormat?: boolean; // For simple format view toggle
+  showEnhancedText?: boolean; // For enhanced text view toggle
+  structuredDocumentData?: any; // Generic structured document data from backend
 }
 
 export interface ExcelSheet {
