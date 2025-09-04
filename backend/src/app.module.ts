@@ -3,14 +3,17 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { FileUploadController } from './controllers/file-upload.controller';
 import { HealthController } from './controllers/health.controller';
+import { BillDataController } from './controllers/bill-data.controller';
 import { FileProcessingService } from './services/file-processing.service';
 import { DatabaseSetupService } from './services/database-setup.service';
 import { GoogleVisionService } from './services/google-vision.service';
 import { ImagePreprocessingService } from './services/image-preprocessing.service';
+import { BillExtractionService } from './services/bill-extraction.service';
 import { ParsedFile } from './entities/parsed-file.entity';
 import { OcrResult } from './entities/ocr-result.entity';
 import { FileMetadata } from './entities/file-metadata.entity';
 import { TableExtraction } from './entities/table-extraction.entity';
+import { BillData } from './entities/bill-data.entity';
 
 @Module({
   imports: [
@@ -31,7 +34,7 @@ import { TableExtraction } from './entities/table-extraction.entity';
           return {
             type: 'mysql',
             url: process.env.DATABASE_URL,
-            entities: [ParsedFile, OcrResult, FileMetadata, TableExtraction],
+            entities: [ParsedFile, OcrResult, FileMetadata, TableExtraction, BillData],
             synchronize: false,
             logging: false, // Disable logging to reduce noise
             charset: 'utf8mb4',
@@ -54,7 +57,7 @@ import { TableExtraction } from './entities/table-extraction.entity';
           username: process.env.DB_USERNAME || 'root',
           password: process.env.DB_PASSWORD || '',
           database: process.env.DB_NAME || 'ai_crm',
-          entities: [ParsedFile, OcrResult, FileMetadata, TableExtraction],
+          entities: [ParsedFile, OcrResult, FileMetadata, TableExtraction, BillData],
           synchronize: false,
           logging: false,
           charset: 'utf8mb4',
@@ -68,9 +71,9 @@ import { TableExtraction } from './entities/table-extraction.entity';
         };
       },
     }),
-    TypeOrmModule.forFeature([ParsedFile, OcrResult, FileMetadata, TableExtraction]),
+    TypeOrmModule.forFeature([ParsedFile, OcrResult, FileMetadata, TableExtraction, BillData]),
   ],
-  controllers: [FileUploadController, HealthController],
-  providers: [FileProcessingService, DatabaseSetupService, GoogleVisionService, ImagePreprocessingService],
+  controllers: [FileUploadController, HealthController, BillDataController],
+  providers: [FileProcessingService, DatabaseSetupService, GoogleVisionService, ImagePreprocessingService, BillExtractionService],
 })
 export class AppModule {}

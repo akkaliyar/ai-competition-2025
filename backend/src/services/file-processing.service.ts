@@ -7,6 +7,7 @@ import { FileMetadata } from '../entities/file-metadata.entity';
 import { TableExtraction } from '../entities/table-extraction.entity';
 import { GoogleVisionService } from './google-vision.service';
 import { ImagePreprocessingService } from './image-preprocessing.service';
+import { BillExtractionService } from './bill-extraction.service';
 import * as Tesseract from 'tesseract.js';
 import * as pdfParse from 'pdf-parse';
 import * as XLSX from 'xlsx';
@@ -31,6 +32,7 @@ export class FileProcessingService {
     private tableExtractionRepository: Repository<TableExtraction>,
     private googleVisionService: GoogleVisionService,
     private imagePreprocessingService: ImagePreprocessingService,
+    private billExtractionService: BillExtractionService,
   ) {}
 
   async processFile(file: Express.Multer.File, requestInfo?: { userAgent?: string; ip?: string; sessionId?: string }): Promise<ParsedFile> {
@@ -158,6 +160,17 @@ export class FileProcessingService {
       }
 
       const finalFile = await this.parsedFileRepository.save(savedFile);
+      
+      // Extract and store bill data automatically
+      try {
+        console.log('🔍 Starting automatic bill data extraction...');
+        await this.billExtractionService.extractAndStoreBillData(finalFile);
+        console.log('✅ Bill data extraction completed successfully');
+      } catch (billError) {
+        console.warn('⚠️ Bill data extraction failed, but file processing succeeded:', billError.message);
+        // Don't fail the entire process if bill extraction fails
+      }
+      
       // File processing completed in ${endTime - startTime}ms
       // === Processing Complete ===
       
